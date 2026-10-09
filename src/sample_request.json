@@ -1,0 +1,14 @@
+{
+  "record_id": "demo-1",
+  "age": 67,
+  "gender": 1,
+  "icu_type": 3,
+  "observations": [
+    {"time": "01:30", "parameter": "HR", "value": 92},
+    {"time": "06:00", "parameter": "HR", "value": 104},
+    {"time": "02:00", "parameter": "RespRate", "value": 22},
+    {"time": "03:00", "parameter": "Temp", "value": 37.8},
+    {"time": "23:00", "parameter": "Temp", "value": 38.4},
+    {"time": "26:00", "parameter": "HR", "value": 130}
+  ]
+}

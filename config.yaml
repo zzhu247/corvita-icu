@@ -1,0 +1,58 @@
+# All tunable settings live here. Change a value, rerun `make day1`.
+
+data:
+  base_url: "https://physionet.org/files/challenge-2012/1.0.0"
+  source_files: ["set-a.tar.gz", "Outcomes-a.txt"]
+  raw_dir: "data/raw"
+  records_dir: "data/raw/set-a"
+  outcomes_file: "data/raw/Outcomes-a.txt"
+  manifest: "data/manifest.json"
+  processed_dir: "data/processed"
+  splits_dir: "data/splits"
+  reports_dir: "reports"
+
+window:
+  cutoff_minutes: 1440        # 24:00 after ICU admission, inclusive
+
+target: "In-hospital_death"
+id_col: "RecordID"
+
+# Outcome-file columns. None of these may ever be a model input.
+outcome_cols: ["SAPS-I", "SOFA", "Length_of_stay", "Survival", "In-hospital_death"]
+
+vitals: ["HR", "RespRate", "Temp"]
+admission_fields: ["Age", "Gender", "ICUType"]
+
+# Plausible ranges. Values outside are set to NaN and counted in the report.
+valid_ranges:
+  HR: [1, 300]          # beats/min; 0 is usually a monitor artefact
+  RespRate: [1, 80]     # breaths/min
+  Temp: [25, 45]        # degrees C
+  Age: [15, 100]        # years; adults only in this dataset
+
+categories:
+  Gender: [0, 1]        # 0 = female, 1 = male, -1 = missing
+  ICUType: [1, 2, 3, 4] # 1 coronary, 2 cardiac surgery recovery, 3 medical, 4 surgical
+
+split:
+  seed: 42
+  train: 0.70
+  val: 0.15
+  test: 0.15
+  max_rate_gap: 0.02    # death rate of each split must be within 2 pts of overall
+
+model:
+  output_dir: "models"
+  version: "v1"
+  # Every choice below is made on the validation set. Test is scored once, at the end.
+  selection_metric: "pr_auc"
+  threshold_rule: "min_sensitivity"
+  min_sensitivity: 0.80     # business assumption: missing a death costs more than a false alarm
+  bootstrap_reps: 1000
+  grids:
+    logreg:
+      C: [0.01, 0.1, 1.0, 10.0]
+    hgb:
+      learning_rate: [0.03, 0.1]
+      max_depth: [2, 3, 4]
+      min_samples_leaf: [20, 50]

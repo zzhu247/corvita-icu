@@ -1,0 +1,16 @@
+{
+  "model_version": "v1",
+  "data_version": "60ef1f882790",
+  "missing_rate": {
+    "HR": 0.0182,
+    "RespRate": 0.7314,
+    "Temp": 0.0189
+  },
+  "median_count": {
+    "HR": 29.0,
+    "RespRate": 25.0,
+    "Temp": 7.0
+  },
+  "mean_score": 0.1406,
+  "alert_rate": 0.4733
+}

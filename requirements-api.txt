@@ -1,0 +1,9 @@
+# Runtime dependencies for the API image (Python 3.13)
+numpy==2.5.3
+pandas==3.0.5
+scikit-learn==1.9.1
+PyYAML==6.0.3
+joblib==1.6.0
+fastapi==0.143.0
+uvicorn==0.53.0
+pydantic==2.13.5

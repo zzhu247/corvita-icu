@@ -493,13 +493,15 @@ looked better on test, and correcting an early reading of the coefficients after
 
 ## 13. Project status and follow-up
 
-<!-- TODO: fill in real hours before submitting. The brief requires it (limit 24 h). -->
+Time used (approximate, within the 24 h limit):
+
 | Day | Work | Hours |
 |---|---|---|
-| 1 | Data, checks, cutoff, features, splits, tests | ? |
-| 2 | Models, selection, cutoff, evaluation, missing-vital analysis | ? |
-| 3 | API, Docker, logs, monitoring, CI, Terraform, docs | ? |
-| After review | Fixes from `REVIEW.md`, Workload Identity, release workflow | ? |
+| 1 | Data, checks, cutoff, features, splits, tests | 2.5 |
+| 2 | Models, selection, cutoff, evaluation, missing-vital analysis | 1.5 |
+| 3 | API, Docker, logs, monitoring, CI, Terraform, docs | 3 |
+| After review | Fixes from `REVIEW.md`, Workload Identity, release workflow | 2 |
+| **Total** | | **9** |
 
 This repository is organized around a three-day project plan with the required data pipeline,
 model training, API, tests, monitoring and Terraform scaffolding. The implementation is

@@ -1,13 +1,15 @@
 """Step 5: split RecordIDs 70/15/15, stratified on the label, fixed seed.
 
 Split unit = patient (RecordID). One row per patient, so no patient can land in
-two groups; check_splits() still asserts it. The saved ID files are the source
+two groups; check_splits() still checks it. The saved ID files are the source
 of truth for Day 2: training reads them instead of re-splitting.
 """
 from pathlib import Path
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
+
+from src.validate import DataError
 
 
 def make_splits(labels: pd.DataFrame, cfg: dict) -> dict[str, pd.Index]:
@@ -31,9 +33,11 @@ def check_splits(splits: dict, labels: pd.DataFrame, cfg: dict) -> dict:
     for i, a in enumerate(names):
         for b in names[i + 1:]:
             overlap = splits[a].intersection(splits[b])
-            assert overlap.empty, f"{a} and {b} share RecordIDs: {list(overlap[:5])}"
+            if not overlap.empty:
+                raise DataError(f"{a} and {b} share RecordIDs: {list(overlap[:5])}")
     union = set().union(*map(set, splits.values()))
-    assert union == set(labels[id_col]), "splits do not cover every record exactly once"
+    if union != set(labels[id_col]):
+        raise DataError("splits do not cover every record exactly once")
 
     y = labels.set_index(id_col)[target]
     overall = float(y.mean())
@@ -42,7 +46,8 @@ def check_splits(splits: dict, labels: pd.DataFrame, cfg: dict) -> dict:
         rate = float(y.loc[ids].mean())
         summary[k] = {"n": int(len(ids)), "n_pos": int(y.loc[ids].sum()), "rate": round(rate, 4)}
         gap = abs(rate - overall)
-        assert gap <= cfg["split"]["max_rate_gap"], f"{k} death rate off by {gap:.3f}"
+        if gap > cfg["split"]["max_rate_gap"]:
+            raise DataError(f"{k} death rate off by {gap:.3f}")
     return summary
 
 

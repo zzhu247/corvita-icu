@@ -1,16 +1,20 @@
+# Source data and derived tables: rebuilt by `make data day1`
 data/raw/
 data/processed/
+# Committed on purpose: data/manifest.json (checksums), data/splits/*_ids.csv (split IDs),
+# reports/data_quality.json (data checks), models/<version>/ (model + metadata).
+
+# Runtime output
+logs/
+reports/monitor_report.json
+
+# Python
+.venv/
 __pycache__/
 .pytest_cache/
-*.tfstate*
+
+# Terraform (infra/.terraform.lock.hcl IS committed: it pins provider versions)
 .terraform/
-.venv/
-.git/
-data/
-logs/
-reports/
-tests/
-infra/
-**/__pycache__/
-.pytest_cache/
-*.md
+*.tfstate
+*.tfstate.*
+terraform.tfvars

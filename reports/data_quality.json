@@ -1,0 +1,114 @@
+{
+  "n_records": 4000,
+  "errors": [],
+  "warnings": [],
+  "file_id_mismatch": 0,
+  "outcomes_without_record": 0,
+  "time": {
+    "bad_format_rows": 0,
+    "max_minutes": 2880.0,
+    "rows_after_24h": 780715
+  },
+  "parameters_seen": [
+    "ALP",
+    "ALT",
+    "AST",
+    "Albumin",
+    "BUN",
+    "Bilirubin",
+    "Cholesterol",
+    "Creatinine",
+    "DiasABP",
+    "FiO2",
+    "GCS",
+    "Glucose",
+    "HCO3",
+    "HCT",
+    "HR",
+    "K",
+    "Lactate",
+    "MAP",
+    "MechVent",
+    "Mg",
+    "NIDiasABP",
+    "NIMAP",
+    "NISysABP",
+    "Na",
+    "PaCO2",
+    "PaO2",
+    "Platelets",
+    "RespRate",
+    "SaO2",
+    "SysABP",
+    "Temp",
+    "TroponinI",
+    "TroponinT",
+    "Urine",
+    "WBC",
+    "Weight",
+    "pH"
+  ],
+  "vitals": {
+    "HR": {
+      "n_rows": 228538,
+      "n_out_of_range": 11,
+      "raw_min": 0.0,
+      "raw_max": 300.0
+    },
+    "RespRate": {
+      "n_rows": 55051,
+      "n_out_of_range": 62,
+      "raw_min": 0.0,
+      "raw_max": 98.0
+    },
+    "Temp": {
+      "n_rows": 86405,
+      "n_out_of_range": 130,
+      "raw_min": -17.8,
+      "raw_max": 42.1,
+      "n_looks_fahrenheit": 0
+    }
+  },
+  "admission": {
+    "age_out_of_range": 0,
+    "gender_unknown_category": 0,
+    "icutype_unknown_category": 0,
+    "missing": {
+      "Age": 0,
+      "Gender": 3,
+      "ICUType": 0
+    }
+  },
+  "label": {
+    "n_positive": 554,
+    "positive_rate": 0.1385
+  },
+  "missing_in_24h_window": {
+    "HR": 0.0177,
+    "RespRate": 0.7258,
+    "Temp": 0.0182,
+    "any_vital_missing": 0.726,
+    "all_vitals_missing": 0.0177
+  },
+  "splits": {
+    "overall_rate": 0.1385,
+    "train": {
+      "n": 2800,
+      "n_pos": 388,
+      "rate": 0.1386
+    },
+    "val": {
+      "n": 600,
+      "n_pos": 83,
+      "rate": 0.1383
+    },
+    "test": {
+      "n": 600,
+      "n_pos": 83,
+      "rate": 0.1383
+    }
+  },
+  "split_seed": 42,
+  "cutoff_minutes": 1440,
+  "data_version": "60ef1f882790"
+}

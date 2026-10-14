@@ -44,9 +44,9 @@ split:
 model:
   output_dir: "models"
   version: "v1"
-  # Every choice below is made on the validation set. Test is scored once, at the end.
-  selection_metric: "pr_auc"
-  threshold_rule: "min_sensitivity"
+  # Every choice below is made on the validation set. Test is only used for reporting.
+  selection_metric: "pr_auc"           # one of: pr_auc, auroc, brier (brier: lower is better)
+  threshold_rule: "min_sensitivity"    # only rule implemented; anything else is rejected
   min_sensitivity: 0.80     # business assumption: missing a death costs more than a false alarm
   bootstrap_reps: 1000
   grids:
@@ -56,3 +56,8 @@ model:
       learning_rate: [0.03, 0.1]
       max_depth: [2, 3, 4]
       min_samples_leaf: [20, 50]
+
+serving:
+  # A vital is flagged low_count when its readings are below this share of the
+  # training median count (train_median_counts in metadata.json).
+  low_count_fraction: 0.25

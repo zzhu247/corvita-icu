@@ -1,11 +1,5 @@
-# Exact versions used to build and test Day 1 (Python 3.13)
-numpy==2.5.3
-pandas==3.0.5
-scikit-learn==1.9.1
-PyYAML==6.0.3
-pytest==9.1.1
-joblib==1.6.0
-
+# Top-level dependencies for development, training and tests (Python 3.13).
+# Exact versions of everything, including indirect dependencies: requirements.lock.
 -r requirements-api.txt
 pytest==9.1.1
-httpx==0.28.1
+httpx2==2.13.1   # test client for Starlette; plain httpx is deprecated there

@@ -1,0 +1,52 @@
+{
+  "status_code": 422,
+  "body": {
+    "detail": [
+      {
+        "loc": [
+          "body",
+          "age"
+        ],
+        "msg": "Input should be a valid number",
+        "type": "float_type"
+      },
+      {
+        "loc": [
+          "body",
+          "gender"
+        ],
+        "msg": "Input should be a valid integer",
+        "type": "int_type"
+      },
+      {
+        "loc": [
+          "body",
+          "icu_type"
+        ],
+        "msg": "Input should be less than or equal to 4",
+        "type": "less_than_equal"
+      },
+      {
+        "loc": [
+          "body",
+          "observations",
+          0,
+          "time"
+        ],
+        "msg": "Value error, time must be HH:MM with minutes 00-59, e.g. '07:30'",
+        "type": "value_error"
+      },
+      {
+        "loc": [
+          "body",
+          "observations",
+          0,
+          "parameter"
+        ],
+        "msg": "Input should be 'HR', 'RespRate' or 'Temp'",
+        "type": "literal_error"
+      }
+    ],
+    "request_id": "<random per request>"
+  }
+}

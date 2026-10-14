@@ -1,0 +1,13 @@
+{
+  "record_id": "demo-invalid",
+  "age": "67",
+  "gender": true,
+  "icu_type": 7,
+  "observations": [
+    {
+      "time": "25:90",
+      "parameter": "SpO2",
+      "value": 97
+    }
+  ]
+}

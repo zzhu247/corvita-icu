@@ -1,0 +1,98 @@
+{
+  "record_id": "demo-missing-resprate",
+  "age": 72,
+  "gender": 0,
+  "icu_type": 2,
+  "observations": [
+    {
+      "time": "00:00",
+      "parameter": "HR",
+      "value": 92
+    },
+    {
+      "time": "02:00",
+      "parameter": "HR",
+      "value": 95
+    },
+    {
+      "time": "04:00",
+      "parameter": "HR",
+      "value": 101
+    },
+    {
+      "time": "06:00",
+      "parameter": "HR",
+      "value": 104
+    },
+    {
+      "time": "08:00",
+      "parameter": "HR",
+      "value": 99
+    },
+    {
+      "time": "10:00",
+      "parameter": "HR",
+      "value": 97
+    },
+    {
+      "time": "12:00",
+      "parameter": "HR",
+      "value": 108
+    },
+    {
+      "time": "14:00",
+      "parameter": "HR",
+      "value": 112
+    },
+    {
+      "time": "16:00",
+      "parameter": "HR",
+      "value": 106
+    },
+    {
+      "time": "18:00",
+      "parameter": "HR",
+      "value": 103
+    },
+    {
+      "time": "20:00",
+      "parameter": "HR",
+      "value": 100
+    },
+    {
+      "time": "22:00",
+      "parameter": "HR",
+      "value": 98
+    },
+    {
+      "time": "02:15",
+      "parameter": "Temp",
+      "value": 37.6
+    },
+    {
+      "time": "06:15",
+      "parameter": "Temp",
+      "value": 37.9
+    },
+    {
+      "time": "10:15",
+      "parameter": "Temp",
+      "value": 38.3
+    },
+    {
+      "time": "14:15",
+      "parameter": "Temp",
+      "value": 38.4
+    },
+    {
+      "time": "18:15",
+      "parameter": "Temp",
+      "value": 38.1
+    },
+    {
+      "time": "22:15",
+      "parameter": "Temp",
+      "value": 37.9
+    }
+  ]
+}

@@ -43,7 +43,11 @@ def validate(adm: pd.DataFrame, obs: pd.DataFrame, labels: pd.DataFrame, cfg: di
     no_label = set(adm[id_col]) - set(labels[id_col])
     if no_label:
         raise DataError(f"{len(no_label)} records have no outcome, e.g. {sorted(no_label)[:5]}")
-    rep["outcomes_without_record"] = int(len(set(labels[id_col]) - set(adm[id_col])))
+    orphans = set(labels[id_col]) - set(adm[id_col])
+    rep["outcomes_without_record"] = int(len(orphans))
+    if orphans:
+        rep["warnings"].append(f"{len(orphans)} outcome rows have no record file and are ignored")
+    labels = labels[labels[id_col].isin(adm[id_col])]
 
     bad_labels = set(labels[target].dropna().unique()) - {0, 1}
     if bad_labels or labels[target].isna().any():

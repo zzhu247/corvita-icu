@@ -1,0 +1,6 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+crash.log
+# .terraform.lock.hcl is committed on purpose: it pins provider versions.

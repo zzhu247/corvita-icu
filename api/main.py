@@ -19,7 +19,6 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
-from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -29,17 +28,38 @@ from src.config import p
 
 
 class RequestLogger:
+    """One JSON line per request to stdout, and to a file if LOG_PATH is set.
+
+    Logging must never be the reason a request fails: if the file cannot be created or
+    written (read-only mount, wrong owner, full disk), it warns once on stderr and keeps
+    logging to stdout only.
+    """
+
     def __init__(self, path: str | None):
         self.path = path
         if path:
-            os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+            try:
+                os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+            except OSError as exc:
+                self._disable_file(exc)
+
+    def _disable_file(self, exc: OSError) -> None:
+        print(f"[api] WARNING: cannot write request log to {self.path} ({exc}); "
+              "logging to stdout only", file=sys.stderr, flush=True)
+        self.path = None
 
     def write(self, event: dict) -> None:
         line = json.dumps(event, separators=(",", ":"))
-        print(line, file=sys.stdout, flush=True)
+        try:
+            print(line, file=sys.stdout, flush=True)
+        except (OSError, ValueError):
+            pass
         if self.path:
-            with open(self.path, "a", encoding="utf-8") as f:
-                f.write(line + "\n")
+            try:
+                with open(self.path, "a", encoding="utf-8") as f:
+                    f.write(line + "\n")
+            except OSError as exc:
+                self._disable_file(exc)
 
 
 def create_app(model_dir: str | None = None, log_path: str | None = None) -> FastAPI:
@@ -76,10 +96,13 @@ def create_app(model_dir: str | None = None, log_path: str | None = None) -> Fas
 
     @app.exception_handler(RequestValidationError)
     async def on_validation_error(request: Request, exc: RequestValidationError):
-        # log which fields failed, not what was sent
+        # Log and return which fields failed and why, never the submitted values:
+        # they may be patient data, and non-finite numbers (NaN) cannot be encoded as JSON.
+        errors = [{"loc": list(e["loc"]), "msg": e["msg"], "type": e["type"]} for e in exc.errors()]
         request.state.log["error"] = "validation"
-        request.state.log["fields"] = sorted({".".join(str(x) for x in e["loc"][1:]) for e in exc.errors()})
-        return await request_validation_exception_handler(request, exc)
+        request.state.log["fields"] = sorted({".".join(str(x) for x in e["loc"][1:]) for e in errors})
+        return JSONResponse({"detail": errors, "request_id": request.state.request_id},
+                            status_code=422)
 
     @app.get("/health")
     def health():
@@ -98,6 +121,7 @@ def create_app(model_dir: str | None = None, log_path: str | None = None) -> Fas
         log = out.pop("_log")
         request.state.log.update({
             "data_quality_flag": out["data_quality_flag"], "missing_vitals": out["missing_vitals"],
+            "low_count_vitals": out["low_count_vitals"],
             "probability": out["probability"], "high_risk": out["high_risk"],
             "n_warnings": len(out["warnings"]), **log,
         })

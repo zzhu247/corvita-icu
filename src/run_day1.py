@@ -18,7 +18,7 @@ from src.features import build_features, missingness_summary
 from src.ingest import verify_or_create
 from src.parse import load_outcomes, load_records
 from src.split import check_splits, make_splits, save_splits
-from src.validate import validate
+from src.validate import DataError, validate
 
 
 def run_day1(cfg: dict) -> dict:
@@ -27,13 +27,15 @@ def run_day1(cfg: dict) -> dict:
 
     adm, obs = load_records(p(d["records_dir"]))
     labels = load_outcomes(p(d["outcomes_file"]), cfg["id_col"], cfg["target"])
-    labels = labels[labels[cfg["id_col"]].isin(adm["RecordID"])]
 
+    # validate() sees every outcome row, so "outcomes without a record" is a real check.
     adm, vitals, report = validate(adm, obs, labels, cfg)
+    labels = labels[labels[cfg["id_col"]].isin(adm["RecordID"])]
 
     X = build_features(adm, vitals, cfg)
     leaked = set(X.columns) & set(cfg["outcome_cols"])
-    assert not leaked, f"Outcome fields used as inputs: {leaked}"
+    if leaked:
+        raise DataError(f"Outcome fields used as inputs: {leaked}")
     report["missing_in_24h_window"] = missingness_summary(X, cfg)
 
     splits = make_splits(labels, cfg)

@@ -18,7 +18,8 @@ def choose_threshold(y, p, min_sensitivity: float) -> float:
     Higher cutoff = fewer alerts, so among all cutoffs that catch enough deaths,
     take the one that raises the fewest false alarms.
     """
-    _, tpr, thr = roc_curve(y, p)
+    # drop_intermediate=False keeps every cutoff; the default can skip the exact crossing point.
+    _, tpr, thr = roc_curve(y, p, drop_intermediate=False)
     ok = (tpr >= min_sensitivity) & np.isfinite(thr)
     if not ok.any():
         raise ValueError("no threshold reaches the target sensitivity")

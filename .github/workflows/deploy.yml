@@ -1,0 +1,96 @@
+# Release a model version to Cloud Run. Manual only; never runs on push.
+#
+# Not run for this project (no cloud account). Before first use:
+#   1. terraform apply in infra/
+#   2. GitHub repo -> Settings -> Variables -> Actions, add:
+#        GCP_PROJECT_ID    your project id
+#        GCP_REGION        northamerica-northeast2
+#        GCP_WIF_PROVIDER  terraform output workload_identity_provider
+#        GCP_CI_SA         terraform output ci_service_account
+#   No secrets are needed: sign-in uses Workload Identity Federation (infra/wif.tf).
+#
+# Release flow (README section 8):
+#   deploy    -> new revision tagged with the model version, 0% traffic, reachable at its tag URL
+#   canary    -> after checks on the tag URL, send `percent` of traffic to it
+#   promote   -> 100% to it
+#   rollback  -> 100% back to the tag given in `model_version` (e.g. v1)
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "deploy, canary, promote or rollback"
+        required: true
+        type: choice
+        options: [deploy, canary, promote, rollback]
+      model_version:
+        description: "Model version = image tag = revision tag, e.g. v1"
+        required: true
+        default: v1
+      percent:
+        description: "Traffic share for canary"
+        required: false
+        default: "10"
+
+permissions:
+  contents: read
+  id-token: write      # lets the job request a GitHub OIDC token for Workload Identity Federation
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  SERVICE: corvita-icu-api
+  REGION: ${{ vars.GCP_REGION }}
+  IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/corvita-icu/api:${{ inputs.model_version }}
+  VERSION: ${{ inputs.model_version }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # Skipped (not failed) until the cloud is set up, and only from the branch WIF trusts.
+    if: vars.GCP_WIF_PROVIDER != '' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the version exists in this commit
+        if: inputs.action == 'deploy'
+        run: |
+          grep -q "version: \"${VERSION}\"" config.yaml || { echo "config.yaml model.version is not ${VERSION}"; exit 1; }
+          test -f "models/${VERSION}/model.joblib"
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_CI_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and push image (tags are immutable, so an existing version cannot be overwritten)
+        if: inputs.action == 'deploy'
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker build -t "${IMAGE}" .
+          docker push "${IMAGE}"
+
+      - name: Deploy as a new revision with no traffic
+        if: inputs.action == 'deploy'
+        run: |
+          gcloud run deploy "${SERVICE}" --image "${IMAGE}" --region "${REGION}" \
+            --no-traffic --tag "${VERSION}" \
+            --update-env-vars "MODEL_DIR=/app/models/${VERSION}" \
+            --update-labels "model_version=${VERSION}"
+          echo "Check before sending traffic: the tag URL printed above, path /health and /model-info."
+
+      - name: Canary
+        if: inputs.action == 'canary'
+        run: gcloud run services update-traffic "${SERVICE}" --region "${REGION}" --to-tags "${VERSION}=${{ inputs.percent }}"
+
+      - name: Promote or roll back
+        if: inputs.action == 'promote' || inputs.action == 'rollback'
+        run: gcloud run services update-traffic "${SERVICE}" --region "${REGION}" --to-tags "${VERSION}=100"
+
+      - name: Current traffic
+        run: gcloud run services describe "${SERVICE}" --region "${REGION}" --format "value(status.traffic)"

@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars (git-ignored) and fill in.
+project_id      = "my-gcp-project"
+region          = "northamerica-northeast2"
+image           = "northamerica-northeast2-docker.pkg.dev/my-gcp-project/corvita-icu/api:v1"
+model_version   = "v1"
+ml_engineers    = ["group:ml-team@example.com"]
+invokers        = ["serviceAccount:ehr-gateway@my-gcp-project.iam.gserviceaccount.com"]
+billing_account = ""
+github_repository = "zzhu247/corvita-icu"
